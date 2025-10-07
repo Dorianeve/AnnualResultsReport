@@ -1,0 +1,30 @@
+# CONFIGURATION FILE
+# to be customized befor running the scripts
+path = "C:/Users/claud/OneDrive - UNICEF/ARR/ARR" # the path on your system from where you will be launching the code
+
+# load sources file name and sheet name
+combiner = "2025-07-03_cr cleaned MnE.csv"
+combiner_pr = "pr_clean.xlsx"
+# sheet_cr = "ARR24 - CR"
+# sheet_pr = "ARR24 - PR"
+# sheet_grants = "Grants DB"
+# sheet_cr_targets = "ARR 2024 - CR Targets"
+grants_db = "grants_db.csv"
+mne_approval = "ARR24 MnE Reports approval.xlsx"
+sheet_mne = "MnE reports approval"
+codes = "analysis_codes.xlsx"
+availability_of_evidence = "availability of evidence.xlsx"
+sheet_aoe = "AoE Template 2024"
+patch = "PR2023-Priorityanalysis.xlsx"
+aoe = "aoe_cleaned.csv"
+
+# yearly parameters
+report_year = "2024" # "YYYY" year parameter
+previous_report_year = "2024" # "YYYY" year parameter
+source_cr = "CR24" # "Source of data" parameter (CR22, CR21, etc etc)
+source_pr = "PR24" # "Source of data" parameter (PR22, PR21, etc etc)
+report_year_number = 2024
+annual = 8 # define variables (they are encoded in numerical form sequentially)
+cumulative = 9 # (2022 is 4 and 5, 2023 will be 6 and 7, etc etc)
+past_annual = 6 # past year; same approach as above
+past_cumulative = 7 # past year; same approach as above
