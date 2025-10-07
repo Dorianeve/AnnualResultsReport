@@ -1,3 +1,6 @@
+# CR FLOW - Numbers check Reached ----
+
+
 # Prep env ----
 source("scripts/prep_env.R")
 today <- today()
@@ -369,3 +372,4 @@ for (sheet_name in names(checks_list)) {
 # Save the workbook
 saveWorkbook(wb, paste0(folder_path, "Number checks - Reached.xlsx"), overwrite = TRUE)
 
+rm(list = ls())

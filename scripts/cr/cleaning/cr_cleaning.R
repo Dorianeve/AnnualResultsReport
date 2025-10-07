@@ -1,15 +1,14 @@
+# CR FLOW - Cleaning ----
+
 # Prep env ----
 source("scripts/prep_env.R")
 today <- today()
 folder_path <- paste0("data/output/cr/", Sys.Date(), "/")
 dir.create(folder_path, recursive = TRUE, showWarnings = FALSE)
 
-# CLEANING CR ----
 # Load cr ----
-# df <- read.xlsx(paste0("data/input/", combiner), sheet = sheet_cr, 
-#                 detectDates = TRUE, sep.names = " ")
-
-df <- read.csv(paste0("data/input/", combiner), encoding = "UTF-8")
+df <- read.xlsx(paste0("data/input/", combiner_cr),
+                detectDates = TRUE, sep.names = " ")
 
 # Cleaning ----
 ## Column names ----
@@ -26,7 +25,7 @@ check_variables <- c("Typeofinvestment", "Country", "Granteeorganization", "GMGR
                      "Status", "Gender", "Typeofreporting", 
                      "Sourceofdata", "Covid19relateddata")
 
-## Trimws and NA ----
+### Trimws and NA ----
 # Step 1: Iterate over each variable in the vector `variables`
 for (v in variables) {
   # Step 2: Convert the column to character if it's not already
@@ -66,13 +65,6 @@ df$Currentenddate <- parse_date_time(df$Currentenddate, orders = c("ymd", "dmy",
 df$yearstart <- year(df$Startdate)
 df$yearend <- year(df$Currentenddate)
 
-## Counting variable ----
-# df <- df %>%
-#   group_by(LeadGRN, Exercise) %>%
-#   mutate(counting = row_number()) %>%
-#   ungroup() %>%
-#   dplyr::select(-Indicator)
-
 ## Exercise variable ----
 df <- df %>%
   mutate(exercice = case_when(
@@ -103,9 +95,9 @@ df <- df %>%
     grepl("21", Sourceofdata) ~ "CR21",  # If 'Sourceofdata' contains '21'
     grepl("22", Sourceofdata) ~ "CR22",  # If 'Sourceofdata' contains '20'
     grepl("23", Sourceofdata) ~ "CR23",
-    grepl("24", Sourceofdata) ~ "CR24",  # If 'Sourceofdata' contains '20'
-    grepl("25", Sourceofdata) ~ "CR25",  # If 'Sourceofdata' contains '21'
-    grepl("26", Sourceofdata) ~ "CR26",  # If 'Sourceofdata' contains '20'
+    grepl("24", Sourceofdata) ~ "CR24",  
+    grepl("25", Sourceofdata) ~ "CR25",  
+    grepl("26", Sourceofdata) ~ "CR26",  
     grepl("27", Sourceofdata) ~ "CR27",
     TRUE ~ Sourceofdata                   # Otherwise, keep the original value
   ))
@@ -139,7 +131,7 @@ write.csv(df, "data/cleaned/CR Combiner - For Checks.csv", row.names = FALSE)
 write.csv(df, "data/cleaned/CR Combiner - For Analysis.csv", row.names = FALSE)
 
 
-# NoUnknown version ----
+# Save NoUnknown version ----
 df %<>%
   filter(Typeofbeneficiary != "Unknown")
 

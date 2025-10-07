@@ -1,3 +1,5 @@
+# CR FLOW - Data checks New ----
+
 # Prep env ----
 source("scripts/prep_env.R")
 today <- today()
@@ -47,7 +49,7 @@ in_cr_not_in_mne <- setdiff(cr_ids, mne_ids)
 in_gms_not_in_cr <- setdiff(gms_ids, cr_ids)
 in_mne_not_in_cr <- setdiff(mne_ids, cr_ids)
 
-# CHECK Cumulative / Joint / GMR ----
+# CHECK Cumulative / Joint / GMS ----
 pid_cr <- df %>% filter(exercice == cumulative & Typeofreporting == "Joint") %>% distinct(ProgrammeID)
 pid_gms <- grants %>% distinct(ProgrammeID)
 
@@ -62,6 +64,8 @@ gmgrn_gms <- grants %>% filter(Activein2024 == "Yes" &
 only_in_cr_gmgrn <- setdiff(gmgrn_cr, gmgrn_gms)
 only_in_gms_gmgrn <- setdiff(gmgrn_gms, gmgrn_cr)
 
+
+# Output ----
 # Building CUBE
 cube_pid <- grants$ProgrammeID
 cube_pid <- as.data.frame(cube_pid)
@@ -94,7 +98,6 @@ cube_grn %<>%
            ifelse(cube_grn %in% only_in_cr_gmgrn$GMGRN, TRUE, FALSE),
          GRNAnnualIndividualinGMSnotCR = 
            ifelse(cube_grn %in% only_in_gms_gmgrn$GMGRN, TRUE, FALSE))
-
 
 checks_list <- list(
   "Cube_ProgrammeID" = cube_pid,

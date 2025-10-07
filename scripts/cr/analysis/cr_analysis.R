@@ -1,3 +1,7 @@
+# CR FLOW - Analysis ----
+# Tables are created by functions 
+# They are repeated per Reached and Targeted specifying the df and reached/ targeted 
+
 # Prep env ----
 source("scripts/prep_env.R")
 today <- today()
@@ -50,3 +54,5 @@ for (sheet_name in names(sheets)) {
 
 # Save the workbook
 saveWorkbook(wb, paste0(folder_path, "Children Reached.xlsx"), overwrite = TRUE)
+
+rm(list = ls())

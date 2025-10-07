@@ -1,3 +1,5 @@
+# CR FLOW - Data checks ----
+
 # Prep env ----
 source("scripts/prep_env.R")
 today <- today()
@@ -6,8 +8,6 @@ dir.create(folder_path, recursive = TRUE, showWarnings = FALSE)
 wb <- createWorkbook()
 
 # GRANTSDB CHECK ----
-# grants <- read.xlsx(paste0("data/input/", combiner), sheet = sheet_grants, 
-#                     detectDates = TRUE, sep.names = " ")
 grants <- read.csv(paste0("data/input/", grants_db), encoding = "UTF-8") 
 
 grants %<>%
@@ -104,6 +104,7 @@ df %<>%
     Typeofreporting == "Joint" & is.na(Number) ~ TRUE,
     TRUE ~ FALSE
   ))
+
 ### IndividualCR ----
 df %<>%
   mutate(MissingIndividualCR = case_when(
@@ -119,102 +120,6 @@ df %<>%
       !!sym(paste0("Activein", report_year)) == "Yes"~ TRUE,
     TRUE ~ FALSE
   ))
-
-## MUTED issing grants CR / GrantsDB Annual ----
-# grantsdb_programmeid <- grants %>% filter(Active == "Yes") %>% select(ProgrammeID) %>% unique()
-# grantsdb_gmgrn <- grants %>% filter(Active == "Yes") %>% select(GMGRN) %>% unique()
-# cr_programmeid_annual <- df %>% filter(exercice == annual) %>% select(ProgrammeID) %>% unique()
-# cr_gmgrn_annual <- df %>% filter(exercice == annual) %>% select(GMGRN) %>% unique()
-# 
-# # Find missing LeadGRN and GMGRN between grants and df
-# missing_programmeid_in_cr <- setdiff(grantsdb_programmeid$ProgrammeID, cr_programmeid_annual$ProgrammeID)
-# missing_programmeid_in_grantsdb <- setdiff(cr_programmeid_annual$ProgrammeID, grantsdb_programmeid$ProgrammeID)
-# missing_gmgrn_in_cr <- setdiff(grantsdb_gmgrn$GMGRN, cr_gmgrn_annual$GMGRN)
-# missing_gmgrn_in_grantsdb <- setdiff(cr_gmgrn_annual$GMGRN, grantsdb_gmgrn$GMGRN)
-# 
-# # Create data frames for each type of missing list if there are missing values
-# missing_programmeid_in_cr_df <- create_missing_df(missing_programmeid_in_cr, "Missing Annual ProgrammeID in CR")
-# missing_programmeid_in_grantsdb_df <- create_missing_df(missing_programmeid_in_grantsdb, "Missing Annual ProgrammeID in GrantsDB")
-# missing_gmgrn_in_cr_df <- create_missing_df(missing_gmgrn_in_cr, "Missing Annual GMGRN in CR")
-# missing_gmgrn_in_grantsdb_df <- create_missing_df(missing_gmgrn_in_grantsdb, "Missing Annual GMGRN in GrantsDB")
-# 
-# # Combine all non-NULL data frames into one
-# combined_missing_grant_cr_annual <- bind_rows(
-#   missing_programmeid_in_cr_df,
-#   missing_programmeid_in_grantsdb_df,
-#   missing_gmgrn_in_cr_df,
-#   missing_gmgrn_in_grantsdb_df
-# )
-# 
-# rm(missing_gmgrn_in_cr, missing_gmgrn_in_grantsdb, missing_programmeid_in_cr, missing_programmeid_in_grantsdb)
-# rm(grantsdb_gmgrn, grantsdb_programmeid)
-# 
-# ## MUTED Missing grants CR / GrantsDB Cumulative ----
-# grantsdb_programmeid <- grants %>% filter(Active == "Yes") %>% select(ProgrammeID) %>% unique()
-# grantsdb_gmgrn <- grants %>% filter(Active == "Yes") %>% select(GMGRN) %>% unique()
-# cr_programmeid_cumulative <- df %>% filter(exercice == cumulative) %>% select(ProgrammeID) %>% unique()
-# cr_gmgrn_cumulative <- df %>% filter(exercice == cumulative) %>% select(GMGRN) %>% unique()
-# 
-# # Find missing LeadGRN and GMGRN between grants and df
-# missing_programmeid_in_cr <- setdiff(grantsdb_programmeid$ProgrammeID, cr_programmeid_cumulative$ProgrammeID)
-# missing_programmeid_in_grantsdb <- setdiff(cr_programmeid_cumulative$ProgrammeID, grantsdb_programmeid$ProgrammeID)
-# missing_gmgrn_in_cr <- setdiff(grantsdb_gmgrn$GMGRN, cr_gmgrn_cumulative$GMGRN)
-# missing_gmgrn_in_grantsdb <- setdiff(cr_gmgrn_cumulative$GMGRN, grantsdb_gmgrn$GMGRN)
-# 
-# # Create data frames for each type of missing list if there are missing values
-# missing_programmeid_in_cr_df <- create_missing_df(missing_programmeid_in_cr, "Missing Cumulative ProgrammeID in CR")
-# missing_programmeid_in_grantsdb_df <- create_missing_df(missing_programmeid_in_grantsdb, "Missing Cumulative ProgrammeID in GrantsDB")
-# missing_gmgrn_in_cr_df <- create_missing_df(missing_gmgrn_in_cr, "Missing Cumulative GMGRN in CR")
-# missing_gmgrn_in_grantsdb_df <- create_missing_df(missing_gmgrn_in_grantsdb, "Missing Cumulative GMGRN in GrantsDB")
-# 
-# # Combine all non-NULL data frames into one
-# combined_missing_grant_cr_cumulative <- bind_rows(
-#   missing_programmeid_in_cr_df,
-#   missing_programmeid_in_grantsdb_df,
-#   missing_gmgrn_in_cr_df,
-#   missing_gmgrn_in_grantsdb_df
-# )
-# 
-# rm(missing_gmgrn_in_cr, missing_gmgrn_in_grantsdb, missing_programmeid_in_cr, missing_programmeid_in_grantsdb)
-# rm(grantsdb_gmgrn, grantsdb_programmeid)
-
-## MUTED Comparing CR / MnE ----
-# mne <- read.csv("data/cleaned/MnE Report Tracker.csv", encoding = "UTF-8")
-# 
-# # mne %<>%
-# #   rename(Active = paste0("Activein", report_year, "."))
-#          
-# mne_leadgrn <- mne %>% 
-#   # filter(Active == "Yes") %>% 
-#   select(ProgrammeID) %>% unique()
-# mne_gmgrn <- mne %>% 
-#   # filter(Active == "Yes") %>% 
-#   select(GMGRN) %>% unique()
-# cr_leadgrn <- df %>% filter(exercice == annual) %>% select(ProgrammeID) %>% unique()
-# cr_gmgrn <- df %>% filter(exercice == annual) %>% select(GMGRN) %>% unique()
-# 
-# # Find missing LeadGRN and GMGRN between mne and df
-# missing_programmeid_in_cr <- setdiff(mne_leadgrn$ProgrammeID, cr_leadgrn$ProgrammeID)
-# missing_programmeid_in_mne <- setdiff(cr_leadgrn$ProgrammeID, mne_leadgrn$ProgrammeID)
-# missing_gmgrn_in_cr <- setdiff(mne_gmgrn$GMGRN, cr_gmgrn$GMGRN)
-# missing_gmgrn_in_mne <- setdiff(cr_gmgrn$GMGRN, mne_gmgrn$GMGRN)
-# 
-# # Create data frames for each type of missing list if there are missing values
-# missing_programmeid_in_cr_df <- create_missing_df(missing_programmeid_in_cr, "Missing ProgrammeID in CR")
-# missing_programmeid_in_mne_df <- create_missing_df(missing_programmeid_in_mne, "Missing ProgrammeID in MnE")
-# missing_gmgrn_in_cr_df <- create_missing_df(missing_gmgrn_in_cr, "Missing GMGRN in CR")
-# missing_gmgrn_in_mne_df <- create_missing_df(missing_gmgrn_in_mne, "Missing GMGRN in MnE")
-# 
-# # Combine all non-NULL data frames into one
-# combined_missing_mne_cr <- bind_rows(
-#   missing_programmeid_in_cr_df,
-#   missing_programmeid_in_mne_df,
-#   missing_gmgrn_in_cr_df,
-#   missing_gmgrn_in_mne_df
-# )
-# 
-# rm(missing_gmgrn_in_cr_df, missing_gmgrn_in_mne_df, missing_programmeid_in_cr_df,
-#    missing_programmeid_in_mne_df, mne_gmgrn, mne_leadgrn, cr_gmgrn, cr_leadgrn)
 
 ## Duplicates ----
 ### All row ----
@@ -244,27 +149,8 @@ df %<>%
     TRUE ~ FALSE
   ))
 
-# # MUTED Accuracy of list of programs active current year ----
-# # Cross check Grants DB and CR
-# cr_start_end <- df %>%
-#   filter(ProgrammeID %in% list_grants_StartDec | ProgrammeID %in% list_grants_EndJan &
-#            Status == "Reached") %>%
-#   group_by(ProgrammeID, Typeofreporting, Gender) %>%
-#   summarise(NumberCR = sum(Number))
-
 
 # OUTPUT ----
-# Prep consistency CR - GrantsDB - MnE Tracker
-# consistency_cr_db_mne <- rbind(combined_missing_grant_cr_annual, combined_missing_grant_cr_cumulative,
-#                                combined_missing_mne_cr)
-# # Add the sheet to the workbook
-# addWorksheet(wb, "CR_MnE_DB_consistency")
-# writeData(wb, "CR_MnE_DB_consistency", consistency_cr_db_mne)
-# # Add the sheet to the workbook
-# addWorksheet(wb, "AccuracyProgramsCurrentYear")
-# writeData(wb, "AccuracyProgramsCurrentYear", cr_start_end)
-
-
 # Mapping of column names to descriptive labels
 label_map <- c(
   "MissingDate" = "Date missing",
@@ -314,6 +200,12 @@ for (col in columns_to_check) {
     writeData(wb, col, sheet_data)
   }
 }
+
+# FILTER Log decisions ----
+log <- read.xlsx("data/input/log_decisions/log_decisions.xlsx", sheet = "cr")
+
+
+
 
 # Save the workbook
 saveWorkbook(wb, paste0(folder_path, "Data checks.xlsx"), overwrite = TRUE)
