@@ -149,7 +149,6 @@ df %<>%
     TRUE ~ FALSE
   ))
 
-
 # OUTPUT ----
 # Mapping of column names to descriptive labels
 label_map <- c(
@@ -172,8 +171,30 @@ columns_to_check <- names(label_map)
 df_subset <- df %>% select(ProgrammeID, LeadGRN, GMGRN, all_of(columns_to_check))
 cube <- df_subset %>% unique()
 
+# FILTER Log decisions ----
+log <- read.xlsx("data/input/log_decisions/log_decisions.xlsx", sheet = "cr")
+
+cube %<>%
+  pivot_longer(cols = all_of(columns_to_check), names_to = "Issue", values_to = "Flag") %>%
+  mutate(Concat = paste0(ProgrammeID, LeadGRN, GMGRN, Issue))
+
+log %<>%
+  mutate(Concat = paste0(ProgrammeID, LeadGRN, GMGRN, Issue))
+
+cube %<>%
+  mutate(Flag = ifelse(Concat %in% log$Concat, FALSE, Flag)) %>%
+  select(-Concat)
+
+cube %<>%
+  arrange(desc(Flag)) %>%  # put TRUE first
+  distinct(ProgrammeID, LeadGRN, GMGRN, Issue, .keep_all = TRUE)
+
+cube %<>%
+  pivot_wider(names_from = Issue, values_from = Flag)
+
+
 # Create a summary sheet with TRUE flags
-summary <- df_subset %>%
+summary <- cube %>%
   pivot_longer(cols = all_of(columns_to_check), names_to = "issue", values_to = "flag") %>%
   filter(flag == TRUE) %>%
   mutate(issue = label_map[issue]) %>%
@@ -190,22 +211,16 @@ writeData(wb, "Cube", cube)
 
 # Create individual sheets for each check, containing only TRUE rows
 for (col in columns_to_check) {
-  sheet_data <- df_subset %>%
+  sheet_data <- cube %>%
     filter(!!sym(col) == TRUE) %>%
     select(ProgrammeID, LeadGRN, GMGRN, !!sym(col)) %>%
     unique()
-  
+
   if (nrow(sheet_data) > 0) {  # Only create the sheet if there are TRUE rows
     addWorksheet(wb, col)
     writeData(wb, col, sheet_data)
   }
 }
-
-# FILTER Log decisions ----
-log <- read.xlsx("data/input/log_decisions/log_decisions.xlsx", sheet = "cr")
-
-
-
 
 # Save the workbook
 saveWorkbook(wb, paste0(folder_path, "Data checks.xlsx"), overwrite = TRUE)

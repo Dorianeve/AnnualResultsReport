@@ -1,3 +1,6 @@
+# PR FLOW - Number checks ----
+
+
 # Prep env ----
 source("scripts/prep_env.R")
 today <- today()
@@ -9,28 +12,29 @@ wb <- createWorkbook()
 ## Load ---
 df <- read.csv("data/cleaned/PR Combiner - For Checks.csv", encoding = "UTF-8")
 
+## Filter annual / cumulative ----
 df %<>% 
-  filter(Exercise == "ARR24 Annual" | Exercise == "ARR24 Cumulative")
+  filter(exercice == annual | exercice == cumulative)
 
-# adding here the check for analysis codes as it is not possible in 2023 to do it before filtering
-list_codes <- read_excel(paste0("data/input/analysis_codes/", codes), sheet = "in")
+# # adding here the check for analysis codes as it is not possible in 2023 to do it before filtering
+# list_codes <- read_excel(paste0("data/input/analysis_codes/", codes), sheet = "in")
+# 
+# list_codes <- list_codes %>%
+#   mutate(codes = if_else(grepl("n2cwd", codes, ignore.case = TRUE), 
+#                          "n2_cwd", codes))
+# list_codes <- list_codes %>%
+#   mutate(codes = if_else(grepl("t2a", codes), 
+#                          "t2_a", codes))
+# list_codes <- list_codes %>%
+#   mutate(codes = if_else(grepl("t6a", codes), 
+#                          "t6_a", codes))
+# list_codes <- list_codes %>%
+#   mutate(codes = if_else(grepl("t6c", codes), 
+#                          "t6_c", codes))
+# 
+# list_codes <- tolower(list_codes$codes)
 
-list_codes <- list_codes %>%
-  mutate(codes = if_else(grepl("n2cwd", codes, ignore.case = TRUE), 
-                         "n2_cwd", codes))
-list_codes <- list_codes %>%
-  mutate(codes = if_else(grepl("t2a", codes), 
-                         "t2_a", codes))
-list_codes <- list_codes %>%
-  mutate(codes = if_else(grepl("t6a", codes), 
-                         "t6_a", codes))
-list_codes <- list_codes %>%
-  mutate(codes = if_else(grepl("t6c", codes), 
-                         "t6_c", codes))
-
-list_codes <- tolower(list_codes$codes)
-
-# Filter codes and LeadGRN----
+## Filter priority codes and LeadGRN----
 # From here only priority codes and LeadGRN are under checks
 # Load priority list
 priority_codes <- read.xlsx("data/input/patch/priority_grn_codes.xlsx",
@@ -115,7 +119,7 @@ totals_summary <- rbind(annual_totals_summary, cumulative_totals_summary)
 ## Filtering ----
 
 df1 <- df %>%
-  filter(Exercise == "ARR24 Cumulative") %>%
+  filter(exercice == cumulative) %>%
   filter(grepl("cumulative", Exercise, ignore.case = TRUE) & unit == "Number #") %>%
   mutate(extracted_chars = substr(Exercise, 4, 5),
          RW = trimws(paste(extracted_chars, Reportingwindow))) %>%
@@ -127,7 +131,7 @@ sequential <- df1 %>%
   group_by(ProgrammeID, LeadGRN, code, RW) %>%
   summarise(Total = sum(Total), na.rm = TRUE) %>%
   pivot_wider(names_from = RW, values_from = Total) %>%
-  select(-c(`24 Revised_target`, `24 Target`, `24 Baseline`))
+  select(-contains("Revised"), -contains("Target"), -contains("Baseline"))
 
 # Get the sorted columns
 sorted_columns <- sort(colnames(sequential)[grepl("rw", colnames(sequential), ignore.case = TRUE)])
@@ -149,43 +153,6 @@ rw_check <- sequential %>%
   filter(non_na_counts > 1) %>%
   select(-non_na_counts)
 
-# yr <- "24"
-# 
-# rw_cols <- grep(paste0("^\\s*", yr, "\\s*RW[1-6]\\s*$"),
-#                 names(sequential), value = TRUE)
-# 
-# # Make sure they’re ordered RW1, RW2, …, RW6
-# rw_cols <- rw_cols[order(as.integer(str_extract(rw_cols, "RW(\\d+)")))]
-# 
-# step1 <- sequential %>%
-#   rowwise(LeadGRN, code) %>%
-#   mutate(vals = list(c_across(all_of(rw_cols)))) %>%
-#   ungroup()
-# 
-# step2 <- step1 %>%
-#   rowwise(LeadGRN, code) %>%
-#   mutate(non_na_idx = list(which(!is.na(vals)))) %>%
-#   ungroup()
-# 
-# step3 <- step2 %>%
-#   rowwise(LeadGRN, code) %>%
-#   mutate(
-#     latest_idx   = if (length(non_na_idx[[1]]) >= 1) tail(non_na_idx[[1]], 1) else NA_integer_,
-#     previous_idx = if (length(non_na_idx[[1]]) >= 2) tail(non_na_idx[[1]], 2)[1] else NA_integer_,
-#     latest_val      = if (!is.na(latest_idx))   vals[[1]][latest_idx]   else NA_real_,
-#     previous_val    = if (!is.na(previous_idx)) vals[[1]][previous_idx] else NA_real_,
-#     latest_col      = if (!is.na(latest_idx))   rw_cols[latest_idx]     else NA_character_,
-#     previous_col    = if (!is.na(previous_idx)) rw_cols[previous_idx]   else NA_character_
-#   ) %>%
-#   ungroup()
-# 
-# # Now you have the two non-NA RW values rowwise:
-# # step3 %>% select(LeadGRN, code, latest_col, latest_val, previous_col, previous_val) %>% slice(1:5)
-
-
-
-
-# Function to check if each value is greater than or equal to the value in the previous column
 # Function to check if each value is greater than or equal to the value in the previous column and append a flag column
 check_non_na_order <- function(df) {
   # Subset the dataframe to only include columns from the 4th onwards
@@ -223,6 +190,7 @@ rw_check_summary <- rw_check_summary %>%
 
 summary <- rbind(totals_checks_summary, rw_check_summary)
 
+# Output ----
 # List of checks and their corresponding sheet names
 checks_list <- list(
   "OverallSummary" = summary,
@@ -240,4 +208,4 @@ for (sheet_name in names(checks_list)) {
 # Save the workbook
 saveWorkbook(wb, paste0(folder_path, "Number checks.xlsx"), overwrite = TRUE)
 
-
+rm(list = ls())

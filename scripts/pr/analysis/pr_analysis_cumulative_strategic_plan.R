@@ -1,3 +1,5 @@
+# PR FLOW - Cumulative strategic ----
+
 # Prep env ----
 source("scripts/prep_env.R")
 today <- today()
@@ -5,6 +7,7 @@ folder_path <- paste0("data/output/pr/", Sys.Date(), "/analysis/")
 dir.create(folder_path, recursive = TRUE, showWarnings = FALSE)
 wb <- createWorkbook()
 
+# Load ----
 df <- read.csv("data/cleaned/PR Combiner - For Analysis.csv", encoding = "UTF-8")
 
 
@@ -262,5 +265,8 @@ programs_list <- df %>%
 addWorksheet(wb, "ListProgramsWData")
 writeData(wb, sheet = "ListProgramsWData", programs_list, colNames = TRUE, rowNames = FALSE)
 
+# Output ----
 # Save the workbook
 saveWorkbook(wb, paste0(folder_path, "Program Results - Cumulative Strategic Plan.xlsx"), overwrite = TRUE)
+
+rm(list = ls())

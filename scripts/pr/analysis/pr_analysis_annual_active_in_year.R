@@ -1,3 +1,5 @@
+# PR FLOW - Analysis Active in Year ----
+
 # Prep env ----
 source("scripts/prep_env.R")
 today <- today()
@@ -5,6 +7,7 @@ folder_path <- paste0("data/output/pr/", Sys.Date(), "/analysis/")
 dir.create(folder_path, recursive = TRUE, showWarnings = FALSE)
 wb <- createWorkbook()
 
+# Load ----
 df <- read.csv("data/cleaned/PR Combiner - For Analysis.csv", encoding = "UTF-8")
 
 
@@ -17,9 +20,12 @@ df %<>%
 # saving a version for the numer of programs with data analysis
 root <- df
 
+# get env_variable
+active_year <- paste0("Activein", report_year)
+
 # remove NA optimization phase
 df <- df %>%
-  filter(exercice == annual & Activein2024 == "Yes" &
+  filter(exercice == annual & .data[[active_year]] == "Yes" &
            (unit == "Number #" | is.na(unit)))
 
 ## Totals per investment and gender ----
@@ -264,4 +270,7 @@ writeData(wb, sheet = "ListProgramsWData", programs_list, colNames = TRUE, rowNa
 
 
 # Save the workbook
-saveWorkbook(wb, paste0(folder_path, "Program Results - Annual Active in 2024.xlsx"), overwrite = TRUE)
+saveWorkbook(wb, paste0(folder_path, "Program Results - Annual Active in ",  report_year ,".xlsx"), overwrite = TRUE)
+
+
+rm(list = ls())

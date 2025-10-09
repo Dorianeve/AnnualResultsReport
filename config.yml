@@ -28,3 +28,4 @@ annual = 8 # define variables (they are encoded in numerical form sequentially)
 cumulative = 9 # (2022 is 4 and 5, 2023 will be 6 and 7, etc etc)
 past_annual = 6 # past year; same approach as above
 past_cumulative = 7 # past year; same approach as above
+ex_com_approval_date_cutoff = "2024-01-01"

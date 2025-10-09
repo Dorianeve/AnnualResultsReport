@@ -1,3 +1,5 @@
+# PR FLOW - Data checks ----
+
 # Prep env ----
 source("scripts/prep_env.R")
 today <- today()
@@ -5,12 +7,13 @@ folder_path <- paste0("data/output/pr/", Sys.Date(), "/")
 dir.create(folder_path, recursive = TRUE, showWarnings = FALSE)
 wb <- createWorkbook()
 
-# PR CHECKS ----
-## Load ---
+## Load ----
 df <- read.csv("data/cleaned/PR Combiner - For Checks.csv", encoding = "UTF-8")
 
+
+## Filter annual / cumulative ----
 df %<>% 
-  filter(Exercise == "ARR24 Annual" | Exercise == "ARR24 Cumulative")
+  filter(exercice == annual | exercice == cumulative)
 
 ## Codes spelling ----
 # adding here the check for analysis codes as it is not possible in 2023 to do it before filtering
@@ -52,7 +55,7 @@ wrong_code <- df %>%
 
 
 # Output ----
-# Add the sheet to the workbook
+# Add the sheets to the workbook
 addWorksheet(wb, "WrongCode")
 writeData(wb, "WrongCode", wrong_code)
 
@@ -66,7 +69,7 @@ mne <- read.csv("data/cleaned/MnE Report Tracker.csv", encoding = "UTF-8")
 # CHECK Unique ProgrammeID / LeadGRN PR and GMS
 unique_pr <- df %>% distinct(ProgrammeID, LeadGRN) %>% rename(GRN = LeadGRN)
 unique_gms <- grants %>% filter(Reportingrole != "Non-lead") %>% distinct(ProgrammeID, GMGRN) %>% rename(GRN = GMGRN)
-unique_mne <- df %>% filter(Activein2024 == "Yes") %>% distinct(ProgrammeID, LeadGRN) %>% rename(GRN = LeadGRN)
+unique_mne <- df %>% filter(.data[[paste0("Activein", report_year)]] == "Yes") %>% distinct(ProgrammeID, LeadGRN) %>% rename(GRN = LeadGRN)
 
 # Create the cube
 all_pairs <- union(union(unique_pr, unique_gms), unique_mne)
@@ -84,8 +87,6 @@ cube_pairs <- all_pairs %>%
     MNEnotPR =  inMNE & !inPR,
   ) %>%
   arrange(ProgrammeID, GRN)
-
-
 
 
 # Filter codes and LeadGRN----
@@ -261,8 +262,31 @@ columns_to_check <- names(label_map)
 df_subset <- df %>% select(ProgrammeID, LeadGRN, code, all_of(columns_to_check))
 cube <- df_subset %>% unique()
 
+## FILTER Log decisions ----
+log <- read.xlsx("data/input/log_decisions/log_decisions.xlsx", sheet = "pr")
+
+cube %<>%
+  pivot_longer(cols = all_of(columns_to_check), names_to = "Issue", values_to = "Flag") %>%
+  mutate(Concat = paste0(ProgrammeID, LeadGRN, code, Issue))
+
+log %<>%
+  mutate(Concat = paste0(ProgrammeID, LeadGRN, code, Issue))
+
+cube %<>%
+  mutate(Flag = ifelse(Concat %in% log$Concat, FALSE, Flag)) %>%
+  select(-Concat)
+
+cube %<>%
+  arrange(desc(Flag)) %>%  # put TRUE first
+  distinct(ProgrammeID, LeadGRN, code, Issue, .keep_all = TRUE)
+
+cube %<>%
+  pivot_wider(names_from = Issue, values_from = Flag)
+
+
+
 # Create a summary sheet with TRUE flags
-summary <- df_subset %>%
+summary <- cube %>%
   pivot_longer(cols = all_of(columns_to_check), names_to = "issue", values_to = "flag") %>%
   filter(flag == TRUE) %>%
   mutate(issue = label_map[issue]) %>%
@@ -278,7 +302,7 @@ writeData(wb, "Cube", cube)
 
 # Create individual sheets for each check, containing only TRUE rows
 for (col in columns_to_check) {
-  sheet_data <- df_subset %>%
+  sheet_data <- cube %>%
     filter(!!sym(col) == TRUE) %>%
     select(ProgrammeID, LeadGRN, code, !!sym(col)) %>%
     unique()
@@ -298,3 +322,4 @@ writeData(wb, "ConsistencyUnitCode", unit_consistency_priority)
 # Save the workbook
 saveWorkbook(wb, paste0(folder_path, "Data checks.xlsx"), overwrite = TRUE)
 
+rm(list = ls())

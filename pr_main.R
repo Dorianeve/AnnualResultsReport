@@ -17,6 +17,6 @@ source("scripts/pr/cleaning/pr_patch.R")
 
 ### Analysis ----
 source("scripts/pr/analysis/pr_analysis_annual.R")
-source("scripts/pr/analysis/pr_analysis_annual_active_in_2024.R")
+source("scripts/pr/analysis/pr_analysis_annual_active_in_year.R")
 source("scripts/pr/analysis/pr_analysis_cumulative.R")
 source("scripts/pr/analysis/pr_analysis_cumulative_strategic_plan.R")

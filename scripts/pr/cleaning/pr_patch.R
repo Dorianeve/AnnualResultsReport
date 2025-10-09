@@ -71,15 +71,16 @@ df %<>%
 
 
 # Prep the GMS info ----
-table(df$Activein2024, useNA = "always")
+col_active <- paste0("Activein", report_year)
+table(df[[col_active]], useNA = "always")
 table(df$ActiveStrategicPlan, useNA = "always")
 
 gms <- read.csv(paste0("data/input/", grants_db), encoding = "UTF-8")
 
-gms %<>% select(ProgrammeID, GMGRN, Activein2024, ActiveStrategicPlan)
+gms %<>% select(ProgrammeID, GMGRN, col_active, ActiveStrategicPlan)
 
 gms %<>%
-  rename(Active2024control = Activein2024,
+  rename(ActiveControl = col_active,
          ActivePlancontrol = ActiveStrategicPlan,
          LeadGRN = GMGRN)
 
@@ -87,13 +88,14 @@ df %<>%
   left_join(gms, by = c("ProgrammeID", "LeadGRN"))
 
 df %<>%
-  select(-c(Activein2024, ActiveStrategicPlan)) %>%
-  rename(Activein2024 = Active2024control,
+  select(-c(col_active, ActiveStrategicPlan)) 
+
+df %<>%
+  rename(!!sym(col_active) := ActiveControl,
          ActiveStrategicPlan = ActivePlancontrol)
 
 # Save ----
 # saving csv (consider adding timestamp)
-# write.csv(df, "data/cleaned/PR Combiner - For Checks.csv", row.names = FALSE)
 write.csv(df, "data/cleaned/PR Combiner - For Analysis.csv", row.names = FALSE)
 
 rm(list = ls())

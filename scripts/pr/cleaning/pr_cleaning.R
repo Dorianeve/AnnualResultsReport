@@ -1,3 +1,5 @@
+# PR FLOW - Cleaning ----
+
 # Prep env ----
 source("scripts/prep_env.R")
 today <- today()
@@ -79,19 +81,6 @@ df %<>%
   # Step 5: Convert 'Total' to numeric
   mutate(Total = as.numeric(Total))
 
-## Counting variable ----
-# df %<>%
-#   arrange(LeadGRN, Exercise, Sourceofdata) %>%
-#   group_by(LeadGRN, Exercise, Sourceofdata) %>%
-#   mutate(counting = row_number()) %>%
-#   ungroup()
-# 
-## Counting code variable ----
-# df %<>%
-#   arrange(LeadGRN, Exercise, code) %>%
-#   group_by(LeadGRN, Exercise, code) %>%
-#   mutate(counting_code = row_number()) %>%
-#   ungroup()
 
 ## Sourceofdata cleaning ----
 df <- df %>%
@@ -143,13 +132,6 @@ df <- df %>%
   mutate(code = ifelse(str_detect(code, "_\\d+$"),
                        str_extract(code, "^[^_]+"),
                        code))
-
-# Generate 'nocode' variable
-# df$nocode <- ifelse((df$unit == "0" | df$unit == "") & 
-#                       !is.na(df$Total) & df$code != "" & 
-#                       # df$exercice == cumulative & 
-#                       # df$Gender == "Total" &
-#                       df$counting_code == 1, 1, NA)
 
 
 df <- df %>%
@@ -223,66 +205,6 @@ df <- df %>%
   mutate(Indicator = if_else(Indicator == "Enter a grantee selected 
                              Program Specific indicator --->", NA, Indicator))
 
-# print("CHECK ON UNIT MEASURE CONSISTENCY")
-# # Function to filter and select based on specific conditions
-# filter_and_select <- function(df, column, pattern) {
-#   df %>%
-#     filter(grepl(pattern, {{ column }}) & 
-#              unit != "Percentage %" & 
-#              code != "" & 
-#              counting == 1) %>%
-#     select(LeadGRN, {{ column }}, unit, Total, Gender, code)
-# }
-# 
-# # Apply the function to each combination of column and condition
-# filtered_results <- list(
-#   filter_and_select(df, Programspecificindicator, "%"),
-#   filter_and_select(df, Indicator, "[Pp]ercentage"),
-#   filter_and_select(df, indicatoradmin, "%"),
-#   filter_and_select(df, `IndicatorandPSI(Merged)`, "[Pp]ercentage")
-# )
-# 
-# # Combine the results into a single dataframe
-# unit_consistency <- bind_rows(filtered_results) %>%
-#   select(LeadGRN, Programspecificindicator, Indicator, indicatoradmin, `IndicatorandPSI(Merged)`, unit, Total, Gender, code)
-# print(paste0(nrow(unit_consistency), " inconsistencies found."))
-# 
-# if (nrow(unit_consistency) > 0) {
-#   write.csv(unit_consistency, paste0("output data/checks/", date_string, " PR - inconsistent unit.csv"), row.names = FALSE)
-#   print("CSV with incosistent unit printed in 'data/checks/'.")
-# } else {
-#   print("No inconsistent units.")
-# }
-# 
-# 
-# # Define a list of columns to search for
-# search_columns <- c("Indicator", "indicatoradmin", "IndicatorandPSI(Merged)")
-# 
-# # Define a function to filter and select data based on a given column name
-# filter_and_select <- function(df, column_name) {
-#   df %>%
-#     filter(grepl("(?i)percentage", !!sym(column_name)) & 
-#              unit == "Number" & 
-#              code != "" & 
-#              counting == 1) %>%
-#     select(LeadGRN, Sourceofdata, !!sym(column_name), code, unit, Total, Gender)
-# }
-# 
-# # Apply the function to each column in the list and save results in a list of data frames
-# results <- lapply(search_columns, function(col) {
-#   filter_and_select(df, col)
-# })
-# 
-# # Optional: If you want to combine all the results into a single data frame
-# unit_consistency2 <- bind_rows(results)
-# print(paste0(nrow(unit_consistency2), " inconsistencies found."))
-# 
-# if (nrow(unit_consistency2) > 0) {
-#   write.csv(unit_consistency2, paste0("output data/checks/", date_string, " PR - inconsistent unit.csv"), row.names = FALSE)
-#   print("CSV with incosistent unit printed in 'data/checks/'.")
-# } else {
-#   print("No inconsistent units.")
-# }
 
 ## Reporting window ----
 df <- df %>%
@@ -304,25 +226,6 @@ df <- df %>%
 ## Concatenate for analysis code check
 df <- df %>%
   mutate(concat = paste0(unit, "___", IndicatorFromLibrary))
-
-# # Filter approved MUTED ----
-# # Put in Combiner before merging with old combiner
-# ra <- read_xlsx(paste0("data/input/", mne_approval), sheet = "MnE reports approval")
-# names(ra) <- ra[3,]
-# ra <- ra[-(1:3), ]
-# 
-# ra %<>%
-#   select(`Programme ID`, `Type of report`, ME_status_tentative, `Type of investment`)
-# 
-# ra %<>%
-#   filter(`Type of investment` != "AF" &
-#            (`Type of report` == "Annual results" | `Type of report` == "Final results") &
-#            (ME_status_tentative == "Approved" | ME_status_tentative  == "Tentative"))
-
-
-# filter clean based on the list
-# df <- df %>%
-#   filter(ProgrammeID %in% ra$`Programme ID`)
 
 ### Cleaning log print ----
 

@@ -30,7 +30,7 @@ missing_cr <- setdiff(unique_gms, unique_cr)
 
 # CHECK Annual / Joint / GMS / MnE ----
 pid_cr <- df %>% filter(exercice == annual & Typeofreporting == "Joint") %>% distinct(ProgrammeID)
-pid_gms <- grants %>% filter(Activein2024 == "Yes") %>% distinct(ProgrammeID)
+pid_gms <- grants %>% filter(get(paste0("Activein", report_year)) == "Yes") %>% distinct(ProgrammeID)
 pid_mne <- mne %>% distinct(ProgrammeID)
 
 # Step 2: Pull vectors of ProgrammeIDs
@@ -58,8 +58,8 @@ only_in_gms_cum <- setdiff(pid_gms, pid_cr)
 
 # CHECK Individual GMGRN / GMS ----
 gmgrn_cr <- df %>% filter(exercice == annual & Typeofreporting == "Individual") %>% distinct(GMGRN)
-gmgrn_gms <- grants %>% filter(Activein2024 == "Yes" &
-                                 Excomapprovaldate < "2024-01-01") %>% distinct(GMGRN)
+gmgrn_gms <- grants %>% filter(get(paste0("Activein", report_year)) == "Yes" &
+                                 Excomapprovaldate < ex_com_approval_date_cutoff) %>% distinct(GMGRN)
 
 only_in_cr_gmgrn <- setdiff(gmgrn_cr, gmgrn_gms)
 only_in_gms_gmgrn <- setdiff(gmgrn_gms, gmgrn_cr)
@@ -98,6 +98,49 @@ cube_grn %<>%
            ifelse(cube_grn %in% only_in_cr_gmgrn$GMGRN, TRUE, FALSE),
          GRNAnnualIndividualinGMSnotCR = 
            ifelse(cube_grn %in% only_in_gms_gmgrn$GMGRN, TRUE, FALSE))
+
+
+## FILTER Log decisions GRN ----
+log <- read.xlsx("data/input/log_decisions/log_decisions.xlsx", sheet = "cr")
+
+cube_grn %<>%
+  pivot_longer(cols = -1, names_to = "Issue", values_to = "Flag") %>%
+  mutate(Concat = paste0(cube_grn, Issue))
+
+log %<>%
+  mutate(Concat = paste0(GMGRN, Issue))
+
+cube_grn %<>%
+  mutate(Flag = ifelse(Concat %in% log$Concat, FALSE, Flag)) %>%
+  select(-Concat)
+
+cube_grn %<>%
+  arrange(desc(Flag)) %>%  # put TRUE first
+  distinct(cube_grn, Issue, .keep_all = TRUE)
+
+cube_grn %<>%
+  pivot_wider(names_from = Issue, values_from = Flag)
+
+## FILTER Log decisions PID ----
+log <- read.xlsx("data/input/log_decisions/log_decisions.xlsx", sheet = "cr")
+
+cube_pid %<>%
+  pivot_longer(cols = -1, names_to = "Issue", values_to = "Flag") %>%
+  mutate(Concat = paste0(cube_pid, Issue))
+
+log %<>%
+  mutate(Concat = paste0(ProgrammeID, Issue))
+
+cube_pid %<>%
+  mutate(Flag = ifelse(Concat %in% log$Concat, FALSE, Flag)) %>%
+  select(-Concat)
+
+cube_pid %<>%
+  arrange(desc(Flag)) %>%  # put TRUE first
+  distinct(cube_pid, Issue, .keep_all = TRUE)
+
+cube_pid %<>%
+  pivot_wider(names_from = Issue, values_from = Flag)
 
 checks_list <- list(
   "Cube_ProgrammeID" = cube_pid,
