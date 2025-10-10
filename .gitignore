@@ -11,3 +11,8 @@
 
 # Ignore all text files in all directories
 **/*.txt
+
+# === EXCEPTIONS (files to include in Git) ===
+!data/input/patch/patch_units.csv
+!data/input/patch/priority_grn_codes.xlsx
+!data/input/log_decisions/log_decisions.xlsx
