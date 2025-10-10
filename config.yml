@@ -3,24 +3,16 @@
 path = "C:/Users/claud/OneDrive - UNICEF/ARR/ARR" # the path on your system from where you will be launching the code
 
 # load sources file name and sheet name
-combiner_cr = "cr_clean.xlsx"
-combiner_pr = "pr_clean.xlsx"
-# sheet_cr = "ARR24 - CR"
-# sheet_pr = "ARR24 - PR"
-# sheet_grants = "Grants DB"
-# sheet_cr_targets = "ARR 2024 - CR Targets"
-grants_db = "grants_db.csv"
-mne_approval = "ARR24 MnE Reports approval.xlsx"
-sheet_mne = "MnE reports approval"
-codes = "analysis_codes.xlsx"
-availability_of_evidence = "availability of evidence.xlsx"
-sheet_aoe = "AoE Template 2024"
-patch = "PR2023-Priorityanalysis.xlsx"
-aoe = "aoe_cleaned.csv"
+combiner_cr = "cr_clean.xlsx" # the excel file from the combiner flow
+combiner_pr = "pr_clean.xlsx" # the excel file from the combiner flow
+grants_db = "grants_db.csv" # this file is coming from the GMS
+mne_approval = "ARR24 MnE Reports approval.xlsx" # this file will change next year (retired in 2024)
+sheet_mne = "MnE reports approval" # depending on the file above
+codes = "analysis_codes.xlsx" # this is already downloaded from the github
 
 # yearly parameters
 report_year = "2024" # "YYYY" year parameter
-previous_report_year = "2024" # "YYYY" year parameter
+previous_report_year = "2023" # "YYYY" year parameter
 source_cr = "CR24" # "Source of data" parameter (CR22, CR21, etc etc)
 source_pr = "PR24" # "Source of data" parameter (PR22, PR21, etc etc)
 report_year_number = 2024

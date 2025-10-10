@@ -4,21 +4,13 @@
 
 Before running the scripts:
 
--   Create the folder `data/input` with 3 sub-folders
-
-    -   `analysis_codes` (where to put the repository of analysis codes list)
-
-    -   `log_decisions` (folder with pending use as a log of decisions for each year)
-
-    -   `patch` (folder with patch related to focus on specific `LeadGRN` or `Analysis Code` - patch is optional)
-
--   Put the `combiner` file along with `MnE reports approval` files in the main `data/input` folder
+-   Put the `combiner` files along with `MnE reports approval` files in the main `data/input` folder
 
 -   Open the `config.yml` file and complete with the requested information. It is important to be accurate here as the code refers to these files and parameters when run. These parameters change over reporting years.
 
 ## Running the code
 
-The code can be run as a standalone or in bits. The suggestion is to have the first iteration run in steps to control and check especially during the cleaning phase, as there might be some additional cleaning steps to be added due to specific challenges in the data. After the first iteration it is recommended to run the entire flow utilising `cr_main.R` and `pr_main.R` files.
+The code can be run as a standalone or in bits. The suggestion is to have the first iteration run in steps to control and check especially during the cleaning phase, as there might be some additional cleaning steps to be added due to specific challenges in the data. After the first iteration it is recommended to run the entire flow utilizing `cr_main.R` and `pr_main.R` files.
 
 ### The flow
 
@@ -30,9 +22,9 @@ The flow for both CR and PR follow this logic:
 
 -   number checks (cross-checks over numbers imputed)
 
-In case of PR patches, run the patch before the checks.
+-   analysis
 
-Every workflow, CR or PR, have all the additional scripts into `scripts/` folder, divided into `cr/`, `pr/`, and `mne/`.
+Every workflow, CR or PR, have all the additional scripts into `scripts/` folder, divided into `cr/` and `pr/`.
 
 ## Outputs
 
@@ -52,12 +44,8 @@ The `excel` files with outputs tend to follow the logic of having a `Summary` sh
 
 ### Log of changes
 
-Every iterative check is submitted to ECW staff for action on the original datapoint, that it's updated periodically and re-run. If there are specific decisions to be taken on specific datapoints, these are to be logged into the `log_decisions` folder. In a TBD file.
+Every iterative check is submitted to ECW staff for action on the original datapoint, that it's updated periodically and re-run. If there are specific decisions to be taken on specific datapoints, these are to be logged into the `log_decisions` folder. The file has two sheets for either `cr` and `pr`. The log acts on the checks that are present in the `cube` sheets. The columns request the essential information to filter out the mistakes that are spotted but to be ignored. In the column `issue` is to be provided the column name of the issue spotted, copy pasted. If it is misspelled the filtering will not work.
 
-# 2025 to-do-list
+### Priority GRNs and codes
 
--   [ ] Log decisions implementation
--   [ ] PR figures checks resume
--   [ ] PR flow control and refinement
--   [ ] AoE pipeline
--   [ ] Refine analysis outcome
+This file controls the priority `codes` and `LeadGRN` to be included in the flow. In the `LeadGRN` sheet utilize the column `'Lead grantee GRN'` without changing the name. In the `Codes` sheet only utilize the `Priority` column with `boolean` (0 for No and 1 for Yes) values. The `Level` column specifies the type of analysis code (Children, Caregivers, Teachers, Schools). The analysis is run exclusively on priority `LeadGRNs` and priority `codes`.
