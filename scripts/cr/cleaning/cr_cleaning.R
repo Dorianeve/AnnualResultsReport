@@ -135,6 +135,7 @@ write.csv(df, "data/cleaned/CR Combiner - For Analysis.csv", row.names = FALSE)
 df %<>%
   filter(Typeofbeneficiary != "Unknown")
 
+dir.create("data/cleaned", recursive = TRUE, showWarnings = FALSE)
 write.csv(df, "data/cleaned/CR Combiner - For Analysis_NoUnknown.csv", row.names = FALSE)
 
 rm(df, variables, v, check_variables, replacement_values)

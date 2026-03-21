@@ -4,7 +4,7 @@
 
 Before running the scripts:
 
--   Put the `combiner` files along with `MnE reports approval` files in the main `data/input` folder
+-   Put the `combiner` files along with `MnE reports approval` file and `grants_db.csv` (output of the gms) in the main `data/input` folder
 
 -   Open the `config.yml` file and complete with the requested information. It is important to be accurate here as the code refers to these files and parameters when run. These parameters change over reporting years.
 

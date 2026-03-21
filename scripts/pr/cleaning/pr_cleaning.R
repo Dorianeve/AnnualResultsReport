@@ -252,6 +252,7 @@ sink()
 
 # Save ----
 # saving csv (consider adding timestamp)
+dir.create("data/cleaned", recursive = TRUE, showWarnings = FALSE)
 write.csv(df, "data/cleaned/PR Combiner - For Checks.csv", row.names = FALSE)
 
 rm(list = ls())

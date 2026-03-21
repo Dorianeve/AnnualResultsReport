@@ -2,6 +2,8 @@
 .Rhistory
 .RData
 .Ruserdata
+config.yml
+.Renviron
 
 # Ignore all Excel files in all directories
 **/*.xlsx
