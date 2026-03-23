@@ -10,7 +10,7 @@ wb <- createWorkbook()
 # CR FIGURES CHECKS ----
 df <- read.csv("data/cleaned/CR Combiner - For Checks.csv", encoding = "UTF-8")
 
-## MnE import for filtering -----
+## MnE / GMSimport for filtering -----
 mne <- read_xlsx(mne_approval,
                  sheet = "Results_Reports",
                  skip = 6)
@@ -20,6 +20,14 @@ mne %<>%
 
 df %<>%
   filter(ProgrammeID %in% mne$`Programme ID`)
+
+gms <- read.csv(paste0("data/input/grants_db.csv"), encoding = "UTF-8")
+
+gms %<>%
+  filter(Activein2025 == "Yes")
+
+df %<>%
+  filter(ProgrammeID %in% gms$ProgrammeID)
 
 ## Annual ----
 df_filtered_root <- df %>%

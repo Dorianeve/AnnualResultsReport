@@ -47,13 +47,18 @@ list_grants_EndJan <- grants %>%
 # CR CHECKS ----
 df <- read.csv("data/cleaned/CR Combiner - For Checks.csv", encoding = "UTF-8")
 
-## MnE import for filtering -----
+## MnE / GMS import for filtering -----
 mne <- read_xlsx(mne_approval,
                  sheet = "Results_Reports",
                  skip = 6)
 
 mne %<>%
   filter(`GM Status` == "Completed")
+
+gms <- read.csv(paste0("data/input/grants_db.csv"), encoding = "UTF-8")
+
+gms %<>%
+  filter(Activein2025 == "Yes")
 
 ## CR filtering ----
 df %<>%
@@ -62,6 +67,9 @@ df %<>%
 
 df %<>%
   filter(ProgrammeID %in% mne$`Programme ID`)
+
+df %<>%
+  filter(ProgrammeID %in% gms$ProgrammeID)
 
 ## Missing information ----
 ### Date ----

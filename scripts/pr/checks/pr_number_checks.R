@@ -12,16 +12,24 @@ wb <- createWorkbook()
 ## Load ---
 df <- read.csv("data/cleaned/PR Combiner - For Checks.csv", encoding = "UTF-8")
 
-## MnE import for filtering -----
+## MnE /GMS import for filtering -----
 mne <- read_xlsx(mne_approval,
                  sheet = "Results_Reports",
                  skip = 6)
+
+gms <- read.csv(paste0("data/input/grants_db.csv"), encoding = "UTF-8")
+
+gms %<>%
+  filter(Activein2025 == "Yes")
 
 mne %<>%
   filter(`GM Status` == "Completed")
 
 df %<>%
   filter(ProgrammeID %in% mne$`Programme ID`)
+
+df %<>%
+  filter(ProgrammeID %in% gms$ProgrammeID)
 
 ## Filter annual / cumulative ----
 df %<>% 
