@@ -47,10 +47,21 @@ list_grants_EndJan <- grants %>%
 # CR CHECKS ----
 df <- read.csv("data/cleaned/CR Combiner - For Checks.csv", encoding = "UTF-8")
 
+## MnE import for filtering -----
+mne <- read_xlsx(mne_approval,
+                 sheet = "Results_Reports",
+                 skip = 6)
+
+mne %<>%
+  filter(`GM Status` == "Completed")
+
 ## CR filtering ----
 df %<>%
   filter(exercice == annual |
            exercice == cumulative)
+
+df %<>%
+  filter(ProgrammeID %in% mne$`Programme ID`)
 
 ## Missing information ----
 ### Date ----

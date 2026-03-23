@@ -10,10 +10,22 @@ wb <- createWorkbook()
 ## Load ----
 df <- read.csv("data/cleaned/PR Combiner - For Checks.csv", encoding = "UTF-8")
 
+## MnE import for filtering -----
+mne <- read_xlsx(mne_approval,
+                 sheet = "Results_Reports",
+                 skip = 6)
+
+mne %<>%
+  filter(`GM Status` == "Completed")
+
+df %<>%
+  filter(ProgrammeID %in% mne$`Programme ID`)
 
 ## Filter annual / cumulative ----
-df %<>% 
-  filter(exercice == annual | exercice == cumulative)
+df %<>%
+  filter(exercice == annual |
+           exercice == cumulative)
+
 
 ## Codes spelling ----
 # adding here the check for analysis codes as it is not possible in 2023 to do it before filtering
