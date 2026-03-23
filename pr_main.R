@@ -10,8 +10,10 @@ source("scripts/prep_env.R")
 source("scripts/pr/cleaning/pr_cleaning.R")
 # source("scripts/mne/mne_cleaning.R")
 ### Checks ----
+source("scripts/airtable/ingest_from_airtable.R")
 source("scripts/pr/checks/pr_data_checks.R")
 source("scripts/pr/checks/pr_number_checks.R")
+source("scripts/airtable/load_checks.R")
 ### Create the subset for analysis ----
 source("scripts/pr/cleaning/pr_patch.R")
 

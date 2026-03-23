@@ -105,16 +105,36 @@ pr <- df %>%
   filter(FLOW == "PR" & Ignore == TRUE) %>%
   select(-c(FLOW, Ignore))
 
-# --- Export to Excel ---------------------------------------------------------
+# --- Export to Excel (append to existing) ------------------------------------
 out_path <- file.path("data/input/log_decisions/log_decisions.xlsx")
+
+if (file.exists(out_path)) {
+  existing_log <- openxlsx::read.xlsx(out_path, sheet = "log")
+  existing_cr  <- openxlsx::read.xlsx(out_path, sheet = "cr")
+  existing_pr  <- openxlsx::read.xlsx(out_path, sheet = "pr")
+
+  log_out <- dplyr::distinct(dplyr::bind_rows(existing_log, df))
+  cr_out  <- dplyr::distinct(dplyr::bind_rows(existing_cr,  cr))
+  pr_out  <- dplyr::distinct(dplyr::bind_rows(existing_pr,  pr))
+
+  message("Appending to existing file: ",
+          nrow(log_out) - nrow(existing_log), " new log rows, ",
+          nrow(cr_out)  - nrow(existing_cr),  " new cr rows, ",
+          nrow(pr_out)  - nrow(existing_pr),  " new pr rows.")
+} else {
+  log_out <- df
+  cr_out  <- cr
+  pr_out  <- pr
+  message("No existing file found — creating new.")
+}
 
 wb <- openxlsx::createWorkbook()
 openxlsx::addWorksheet(wb, "cr")
 openxlsx::addWorksheet(wb, "pr")
 openxlsx::addWorksheet(wb, "log")
-openxlsx::writeData(wb, sheet = "cr", x = cr)
-openxlsx::writeData(wb, sheet = "pr", x = pr)
-openxlsx::writeData(wb, sheet = "log", x = df)
+openxlsx::writeData(wb, sheet = "cr",  x = cr_out)
+openxlsx::writeData(wb, sheet = "pr",  x = pr_out)
+openxlsx::writeData(wb, sheet = "log", x = log_out)
 openxlsx::saveWorkbook(wb, out_path, overwrite = TRUE)
 
 message("Saved: ", out_path)
