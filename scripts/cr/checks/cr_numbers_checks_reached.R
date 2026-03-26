@@ -17,7 +17,7 @@ mne <- read_xlsx(mne_approval,
                  skip = 6)
 
 mne %<>%
-  filter(`GM Status` == "Completed")
+  filter(`GM Status` == "Completed" | `GM Status` == "Waived")
 
 df %<>%
   filter(ProgrammeID %in% mne$`Programme ID`)

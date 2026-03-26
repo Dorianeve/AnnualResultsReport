@@ -21,7 +21,7 @@ gms %<>%
   filter(Activein2025 == "Yes")
 
 mne %<>%
-  filter(`GM Status` == "Completed")
+  filter(`GM Status` == "Completed" | `GM Status` == "Waived")
 
 df %<>%
   filter(ProgrammeID %in% mne$`Programme ID`)

@@ -53,7 +53,7 @@ mne <- read_xlsx(mne_approval,
                  skip = 6)
 
 mne %<>%
-  filter(`GM Status` == "Completed")
+  filter(`GM Status` == "Completed" | `GM Status` == "Waived")
 
 gms <- read.csv(paste0("data/input/grants_db.csv"), encoding = "UTF-8")
 
